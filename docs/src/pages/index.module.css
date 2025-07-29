@@ -1,0 +1,96 @@
+/**
+ * CSS files with the .module.css suffix will be treated as CSS modules
+ * and scoped locally.
+ */
+
+/* Hero Section */
+.heroBanner {
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.buttons {
+  margin-top: 1.5rem;
+}
+
+/* Features Section */
+.features {
+  padding: 3rem 0;
+}
+
+.featureSvg {
+  height: 150px;
+  width: 150px;
+  margin: 0 auto 1rem;
+  display: block;
+}
+
+/* Code Example Section */
+.codeExample pre {
+  border-radius: 8px;
+  padding: 1.2rem 1.5rem;
+  overflow-x: auto;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Light Mode */
+html[data-theme='light'] .codeExample pre {
+  background: #f6f8fa;
+  color: #24292e;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* Dark Mode */
+html[data-theme='dark'] .codeExample pre {
+  background: #1e1e1e;
+  color: #e6edf3;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+/* Simple "syntax highlighting" (manual override) */
+html[data-theme='dark'] .codeExample .token.keyword,
+html[data-theme='light'] .codeExample .token.keyword {
+  color: #569cd6;
+  font-weight: 500;
+}
+
+html[data-theme='dark'] .codeExample .token.string,
+html[data-theme='light'] .codeExample .token.string {
+  color: #d69d85;
+}
+
+html[data-theme='dark'] .codeExample .token.function,
+html[data-theme='light'] .codeExample .token.function {
+  color: #dcdcaa;
+}
+
+
+/* Why Section */
+.whySection {
+  padding: 2.5rem 0;
+}
+
+.whySection h2 {
+  margin-bottom: 1.2rem;
+}
+
+.whySection ul {
+  max-width: 700px;
+  margin: 0 auto;
+  padding-left: 0;
+  line-height: 1.7;
+  list-style-position: inside;
+}
+.whySection li {
+  padding-left: 1.5rem;
+}
+
+/* Final Call to Action */
+.ctaSection {
+  padding: 3rem 0;
+  text-align: center;
+}

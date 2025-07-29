@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # komplette History und alle Tags holen
+          fetch-depth: 0
           fetch-tags: true
 
       - name: Setup Java (with GPG import)
@@ -91,24 +91,26 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  javadoc:
+  docs:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up JDK
-        uses: actions/setup-java@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          distribution: temurin
-          java-version: 21
+          node-version: 20
 
-      - name: Build Javadocs
-        run: mvn -B clean javadoc:javadoc
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./docs
+
+      - name: Build Docusaurus
+        run: npm run build
+        working-directory: ./docs
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./target/site/apidocs
+          publish_dir: ./docs/build
