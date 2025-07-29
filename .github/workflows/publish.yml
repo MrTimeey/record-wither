@@ -60,17 +60,15 @@ jobs:
       - name: Generate changelog
         id: changelog
         run: |
-          git fetch --tags
-          current_tag="${GITHUB_REF_NAME}"
-          prev_tag=$(git tag --sort=-creatordate | grep -A1 "$current_tag" | tail -n1)
-          
+          # Hole letzten Tag vor dem aktuellen
+          prev_tag=$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || echo "")
           if [ -n "$prev_tag" ]; then
             echo "Commits since $prev_tag:" > RELEASE_NOTES.md
-            git log "$prev_tag"..HEAD --pretty=format:"- %s" >> RELEASE_NOTES.md
+            git log "${prev_tag}..${GITHUB_REF_NAME}" --pretty=format:"- %s" >> RELEASE_NOTES.md
           else
             echo "Initial release" > RELEASE_NOTES.md
           fi
-      
+
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
