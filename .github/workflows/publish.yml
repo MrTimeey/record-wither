@@ -57,11 +57,15 @@ jobs:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
 
+      # -------------------------
+      # Changelog-Erstellung
+      # -------------------------
       - name: Generate changelog
         id: changelog
         run: |
-          # Hole letzten Tag vor dem aktuellen
-          prev_tag=$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || echo "")
+          # Vorherigen Tag finden
+          prev_tag=$(git tag --sort=creatordate | grep -B1 "${GITHUB_REF_NAME}" | head -n1 || true)
+
           if [ -n "$prev_tag" ]; then
             echo "Commits since $prev_tag:" > RELEASE_NOTES.md
             git log "${prev_tag}..${GITHUB_REF_NAME}" --pretty=format:"- %s" >> RELEASE_NOTES.md
@@ -69,12 +73,15 @@ jobs:
             echo "Initial release" > RELEASE_NOTES.md
           fi
 
+          echo "=== RELEASE NOTES ==="
+          cat RELEASE_NOTES.md
 
+      # -------------------------
+      # GitHub Release
+      # -------------------------
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ env.VERSION }}
           body_path: RELEASE_NOTES.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
