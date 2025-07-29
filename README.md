@@ -71,3 +71,10 @@ mvn clean verify
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+
+## Contributing
+
+Contributions are welcome! 🎉  
+Please read the [Contributing Guidelines](.github/CONTRIBUTING.md) for details on our development process, coding standards, and how to propose changes.
+
+By participating in this project, you are expected to uphold our [Code of Conduct](.github/CODE_OF_CONDUCT.md).
