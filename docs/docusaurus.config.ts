@@ -98,7 +98,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Tim Kruse. Released under the MIT License.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Tim Kruse.`,
     },
     prism: {
       theme: prismThemes.github,
