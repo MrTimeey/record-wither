@@ -1,13 +1,11 @@
 package io.github.mrtimeey.records;
 
 import java.io.Serializable;
-import java.lang.Record;
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.RecordComponent;
 import java.util.Arrays;
-
 
 /**
  * Utility class providing "wither"-style functionality for {@link java.lang.Record} types.
@@ -38,79 +36,78 @@ import java.util.Arrays;
  */
 public final class RecordWither {
 
-  private RecordWither() {
-    // Hide default constructor
-  }
+    private RecordWither() {
+        // Hide default constructor
+    }
 
-  /**
-   * Creates a new record instance based on an existing record, replacing
-   * exactly one component value.
-   *
-   * <p>This method is intended to be used via the {@link Withable} interface
-   * to allow a fluent, type-safe syntax such as:
-   * <pre>{@code
-   * MyRecord newRecord = oldRecord.with(MyRecord::field, newValue);
-   * }</pre>
-   *
-   * @param record   the original record instance
-   * @param getter   a method reference to the component accessor (e.g. {@code MyRecord::field})
-   * @param newValue the replacement value for the given component
-   * @param <T>      the record type
-   * @param <R>      the component type
-   * @return a new record instance with the modified value
-   * @throws RuntimeException if reflective instantiation fails
-   */
-  @SuppressWarnings("unchecked")
-  public static <T extends Record, R> T with(T record, Getter<T, R> getter, R newValue) {
-    try {
-      Class<?> recordClass = record.getClass();
-      RecordValidator.ensureWithRecord(recordClass);
-      String fieldName = extractFieldName(getter);
-      RecordComponent[] components = recordClass.getRecordComponents();
+    /**
+     * Creates a new record instance based on an existing record, replacing
+     * exactly one component value.
+     *
+     * <p>This method is intended to be used via the {@link Withable} interface
+     * to allow a fluent, type-safe syntax such as:
+     * <pre>{@code
+     * MyRecord newRecord = oldRecord.with(MyRecord::field, newValue);
+     * }</pre>
+     *
+     * @param record   the original record instance
+     * @param getter   a method reference to the component accessor (e.g. {@code MyRecord::field})
+     * @param newValue the replacement value for the given component
+     * @param <T>      the record type
+     * @param <R>      the component type
+     * @return a new record instance with the modified value
+     * @throws RuntimeException if reflective instantiation fails
+     */
+    @SuppressWarnings("unchecked")
+    public static <T extends Record, R> T with(T record, Getter<T, R> getter, R newValue) {
+        try {
+            Class<?> recordClass = record.getClass();
+            RecordValidator.ensureWithRecord(recordClass);
+            String fieldName = extractFieldName(getter);
+            RecordComponent[] components = recordClass.getRecordComponents();
 
-      Object[] values = new Object[components.length];
-      for (int i = 0; i < components.length; i++) {
-        Method accessor = components[i].getAccessor();
-        values[i] = accessor.invoke(record);
-        if (components[i].getName().equals(fieldName)) {
-          values[i] = newValue;
+            Object[] values = new Object[components.length];
+            for (int i = 0; i < components.length; i++) {
+                Method accessor = components[i].getAccessor();
+                values[i] = accessor.invoke(record);
+                if (components[i].getName().equals(fieldName)) {
+                    values[i] = newValue;
+                }
+            }
+
+            Constructor<?> ctor = recordClass.getDeclaredConstructor(
+                    Arrays.stream(components).map(RecordComponent::getType).toArray(Class[]::new));
+
+            if (!ctor.canAccess(null)) {
+                ctor.setAccessible(true);
+            }
+
+            return (T) ctor.newInstance(values);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-      }
-
-      Constructor<?> ctor =
-          recordClass.getDeclaredConstructor(
-              Arrays.stream(components).map(RecordComponent::getType).toArray(Class[]::new));
-
-      if (!ctor.canAccess(null)) {
-        ctor.setAccessible(true);
-      }
-
-      return (T) ctor.newInstance(values);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
     }
-  }
 
-  private static SerializedLambda extractLambda(Serializable lambda) {
-    try {
-      Method writeReplace = lambda.getClass().getDeclaredMethod("writeReplace");
-      writeReplace.setAccessible(true);
-      return (SerializedLambda) writeReplace.invoke(lambda);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to extract SerializedLambda", e);
+    private static SerializedLambda extractLambda(Serializable lambda) {
+        try {
+            Method writeReplace = lambda.getClass().getDeclaredMethod("writeReplace");
+            writeReplace.setAccessible(true);
+            return (SerializedLambda) writeReplace.invoke(lambda);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to extract SerializedLambda", e);
+        }
     }
-  }
 
-  private static String extractFieldName(Serializable getter) {
-    SerializedLambda lambda = extractLambda(getter);
-    String implMethodName = lambda.getImplMethodName();
-    return methodToField(implMethodName);
-  }
-
-  private static String methodToField(String methodName) {
-    if (methodName.startsWith("get") && methodName.length() > 3) {
-      return Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+    private static String extractFieldName(Serializable getter) {
+        SerializedLambda lambda = extractLambda(getter);
+        String implMethodName = lambda.getImplMethodName();
+        return methodToField(implMethodName);
     }
-    return methodName;
-  }
+
+    private static String methodToField(String methodName) {
+        if (methodName.startsWith("get") && methodName.length() > 3) {
+            return Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+        }
+        return methodName;
+    }
 }

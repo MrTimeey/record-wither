@@ -22,19 +22,19 @@ package io.github.mrtimeey.records;
 @SuppressWarnings("unchecked")
 public interface Withable<T extends Record> {
 
-  /**
-   * Creates a copy of this record with the given component replaced by a new value.
-   * <p>
-   * The component to replace is identified via a method reference to its accessor.
-   * All other components remain unchanged.
-   *
-   * @param getter the accessor method reference of the record component to replace
-   * @param value the new value to set for the given component
-   * @param <R> the type of the record component
-   * @return a new record instance with the specified component replaced
-   * @throws RuntimeException if the reflective instantiation of the record fails
-   */
-  default <R> T with(Getter<T, R> getter, R value) {
-    return RecordWither.with((T) this, getter, value);
-  }
+    /**
+     * Creates a copy of this record with the given component replaced by a new value.
+     * <p>
+     * The component to replace is identified via a method reference to its accessor.
+     * All other components remain unchanged.
+     *
+     * @param getter the accessor method reference of the record component to replace
+     * @param value the new value to set for the given component
+     * @param <R> the type of the record component
+     * @return a new record instance with the specified component replaced
+     * @throws RuntimeException if the reflective instantiation of the record fails
+     */
+    default <R> T with(Getter<T, R> getter, R value) {
+        return RecordWither.with((T) this, getter, value);
+    }
 }
