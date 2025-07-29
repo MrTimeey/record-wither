@@ -2,6 +2,7 @@
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.mrtimeey/record-wither.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.mrtimeey/record-wither)
 [![Build](https://github.com/mrtimeey/record-wither/actions/workflows/ci.yml/badge.svg)](https://github.com/mrtimeey/record-wither/actions)
+[![javadoc](https://javadoc.io/badge2/io.github.mrtimeey/record-wither/javadoc.svg)](https://javadoc.io/doc/io.github.mrtimeey/record-wither)
 
 A small Java library to make working with immutable Java Records easier.  
 It provides a convenient **with** method for records to modify single fields immutably.
