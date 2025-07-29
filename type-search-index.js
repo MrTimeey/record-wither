@@ -1,1 +1,0 @@
-typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"io.github.mrtimeey.records","l":"Getter"},{"p":"io.github.mrtimeey.records","l":"RecordValidator"},{"p":"io.github.mrtimeey.records","l":"RecordWither"},{"p":"io.github.mrtimeey.records","l":"Withable"}];updateSearchResults();
