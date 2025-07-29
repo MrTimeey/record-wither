@@ -1,0 +1,55 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java (with GPG import)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          gpg-passphrase: "unused"
+
+      - name: Override empty passphrase
+        run: echo "MAVEN_GPG_PASSPHRASE=" >> $GITHUB_ENV
+
+      - name: Extract version from tag
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+
+      - name: Debug GPG Key
+        run: gpg --list-secret-keys --keyid-format=long
+
+      - name: Provide minimal Maven settings
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml <<EOF
+          <settings>
+            <servers>
+              <server>
+                <id>central</id>
+                <username>${{ secrets.OSSRH_USERNAME }}</username>
+                <password>${{ secrets.OSSRH_TOKEN }}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
+
+      - name: Set release version
+        run: |
+          mvn -B versions:set -DnewVersion=${VERSION} -DgenerateBackupPoms=false
+
+      - name: Publish
+        run: |
+          mvn -B install central-publishing:publish -Prelease
+        env:
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}

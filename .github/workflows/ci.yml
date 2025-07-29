@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        java: [17, 21]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # damit alle Tags verfügbar sind
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Determine and set version
+        run: |
+          CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "Version im POM: $CURRENT_VERSION"
+
+          # neuesten Tag im Repo finden
+          LATEST_TAG=$(git tag --sort=-creatordate | head -n1 || true)
+          if [ -z "$LATEST_TAG" ]; then
+            echo "Kein Tag gefunden -> benutze Version aus POM"
+            exit 0
+          fi
+
+          echo "Letzter Tag im Repo: $LATEST_TAG"
+
+          BASE_VERSION=$(echo "$LATEST_TAG" | sed 's/^v//' | sed 's/-SNAPSHOT//')
+          MAJOR=$(echo $BASE_VERSION | cut -d. -f1)
+          MINOR=$(echo $BASE_VERSION | cut -d. -f2)
+          PATCH=$(echo $BASE_VERSION | cut -d. -f3)
+
+          NEXT_MINOR=$((MINOR+1))
+          NEW_VERSION="$MAJOR.$NEXT_MINOR.0-SNAPSHOT"
+
+          echo "Setze neue Version: $NEW_VERSION"
+          mvn versions:set -DnewVersion=$NEW_VERSION -DgenerateBackupPoms=false
+
+          # 👉 optional committen & pushen
+          # git config user.name "github-actions[bot]"
+          # git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # git commit -am "chore: bump to $NEW_VERSION"
+          # git push
+
+      - name: Build with Maven on Java ${{ matrix.java }}
+        run: mvn -B verify
